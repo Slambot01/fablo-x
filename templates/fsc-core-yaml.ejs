@@ -1,0 +1,61 @@
+<%#
+  EJS template for FSC core.yaml generation.
+  Generated once per FSC node (endorser/issuer/owner).
+
+  Template variables:
+    - node        : FscNodeJson (current node being generated)
+    - allNodes[]  : FscNodeJson[] (all nodes in the mesh — needed for resolvers)
+    - org         : OrgJsonExtended
+    - channelName : string
+%>
+logging:
+  spec: info
+  format: "%{color}%{time:15:04:05.000} [%{module}] %{shortfunc} %{level:.4s}%{color:reset} %{message}"
+
+fsc:
+  id: <%= node.fsc.id %>
+  identity:
+    cert:
+      file: ./keys/node.crt
+    key:
+      file: ./keys/node.key
+  p2p:
+    listenAddress: <%= node.fsc.p2pListenAddress %>
+    type: websocket
+    opts:
+      routing:
+        path: ./routing-config.yaml
+  persistences:
+    default:
+      type: <%= node.db.type %>
+      opts:
+        dataSource: <%= node.db.datasource %>
+  endpoint:
+    resolvers:
+<% allNodes.forEach(n => { %>
+      - name: <%= n.fsc.id %>
+        identity:
+          id: <%= n.fsc.id %>
+          path: ./keys/nodes/<%= n.fsc.id %>.crt
+        addresses:
+          P2P: <%= n.fsc.id %>.<%= org.organization.domain %>:<%= n.ports.p2p %>
+<% }) %>
+
+fabric:
+  enabled: true
+  default:
+    driver: <%= node.fsc.driver %>
+    msps:
+      - id: endorser
+        mspType: bccsp
+        mspID: <%= org.organization.mspName %>
+        path: ./keys/fabric/endorser
+    tls:
+      enabled: false
+    peers:
+      - address: committer-sidecar:4001
+    queryService:
+      - address: committer-queryservice:7001
+    channels:
+      - name: <%= channelName %>
+        default: true

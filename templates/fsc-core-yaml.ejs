@@ -1,45 +1,42 @@
-<%#
-  EJS template for FSC core.yaml generation.
-  Generated once per FSC node (endorser/issuer/owner).
+<%# FSC core.yaml template — Fabric-X mode %>
+<%# Source reference: fabric-x/samples/tokens/conf/endorser1/core.yaml %>
 
-  Template variables:
-    - node        : FscNodeJson (current node being generated)
-    - allNodes[]  : FscNodeJson[] (all nodes in the mesh — needed for resolvers)
-    - org         : OrgJsonExtended
-    - channelName : string
-%>
 logging:
   spec: info
-  format: "%{color}%{time:15:04:05.000} [%{module}] %{shortfunc} %{level:.4s}%{color:reset} %{message}"
+  format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}'
 
 fsc:
-  id: <%= node.fsc.id %>
-  identity:
-    cert:
-      file: ./keys/node.crt
-    key:
-      file: ./keys/node.key
+  id: <%= node.fsc.id %> # CORE_FSC_ID
+  networkConfigPath: ""
   p2p:
-    listenAddress: <%= node.fsc.p2pListenAddress %>
-    type: websocket
+    listenAddress: <%= node.fsc.p2pListenAddress %> # CORE_P2P_LISTENADDRESS
+    type: libp2p
     opts:
       routing:
-        path: ./routing-config.yaml
+        path: /conf/routing-config.yaml
+  identity:
+    cert:
+      file: /conf/fsc/<%= node.name %>/signcerts/<%= node.name %>-cert.pem
+    key:
+      file: /conf/fsc/<%= node.name %>/keystore/priv_sk
   persistences:
     default:
-      type: <%= node.db.type %>
+      type: sqlite
       opts:
-        dataSource: <%= node.db.datasource %>
+        dataSource: <%= node.db.datasource %> # CORE_FSC_PERSISTENCES_OPTS_DATASOURCE
+        skipPragmas: false
+        maxOpenConns: 10
   endpoint:
     resolvers:
-<% allNodes.forEach(n => { %>
-      - name: <%= n.fsc.id %>
+<% allFscNodes.forEach(function(peer) { -%>
+      - name: <%= peer.name %>
+        domain: <%= peer.domain %>
         identity:
-          id: <%= n.fsc.id %>
-          path: ./keys/nodes/<%= n.fsc.id %>.crt
+          id: <%= peer.name %>
+          path: /conf/fsc/<%= peer.name %>/signcerts/<%= peer.name %>-cert.pem
         addresses:
-          P2P: <%= n.fsc.id %>.<%= org.organization.domain %>:<%= n.ports.p2p %>
-<% }) %>
+          Listen: <%= peer.name %>.example.com:<%= peer.ports.p2p %>
+<% }); -%>
 
 fabric:
   enabled: true
@@ -48,14 +45,26 @@ fabric:
     msps:
       - id: endorser
         mspType: bccsp
-        mspID: <%= org.organization.mspName %>
-        path: ./keys/fabric/endorser
+        mspID: <%= node.org.mspName %>
+        path: /conf/fabric/<%= node.name %>
     tls:
       enabled: false
     peers:
-      - address: committer-sidecar:4001
+      - address: committer-sidecar:<%= committer.ports.sidecar %>
+        usage: <%= node.peerUsage || '' %>
     queryService:
-      - address: committer-queryservice:7001
+      - address: committer-queryservice:<%= committer.ports.queryService %>
     channels:
       - name: <%= channelName %>
         default: true
+
+token:
+  enabled: true
+  tms:
+    mytms:
+      network: default
+      channel: <%= channelName %>
+      namespace: token_namespace
+      driver: zkatdlog
+      publicParameters:
+        path: ../namespace/zkatdlognoghv1_pp.json

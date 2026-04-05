@@ -2,7 +2,7 @@
   "global": {
     "fabricVersion": "x-0.1.7",
     "engine": "fabric-x",
-    "tls": true,
+    "tls": false,
     "fabricXImages": {
       "committerTestNode": "ghcr.io/hyperledger/fabric-x-committer-test-node:0.1.7",
       "toolsBaseImage": "registry.access.redhat.com/ubi9/ubi-minimal:9.6"
@@ -16,7 +16,8 @@
         "mspName": "Org1MSP"
       },
       "ca": {
-        "prefix": "ca"
+        "prefix": "ca",
+        "db": "sqlite"
       },
       "committers": [
         {
@@ -29,10 +30,9 @@
             "database": 5433
           },
           "sidecar": {
-            "channelId": "mychannel",
+            "channelId": "arma",
             "blockSize": 1,
             "signedEnvelopes": true,
-            "mspDir": "/root/config/crypto/peerOrganizations/org1.example.com/peers/SC.org1.example.com/msp",
             "mspId": "Org1MSP"
           },
           "logging": {
@@ -62,7 +62,16 @@
             "type": "sqlite",
             "datasource": "file:./data/fts.sqlite"
           }
-        },
+        }
+      ]
+    },
+    {
+      "organization": {
+        "name": "Org2",
+        "domain": "org2.example.com",
+        "mspName": "Org2MSP"
+      },
+      "endorsers": [
         {
           "name": "endorser2",
           "nodeType": "endorser",
@@ -85,11 +94,15 @@
   ],
   "channels": [
     {
-      "name": "mychannel",
+      "name": "arma",
       "orgs": [
         {
           "name": "Org1",
-          "endorsers": ["endorser1", "endorser2"]
+          "endorsers": ["endorser1"]
+        },
+        {
+          "name": "Org2",
+          "endorsers": ["endorser2"]
         }
       ]
     }

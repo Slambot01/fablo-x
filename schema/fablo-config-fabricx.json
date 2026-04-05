@@ -1,0 +1,97 @@
+{
+  "global": {
+    "fabricVersion": "x-0.1.7",
+    "engine": "fabric-x",
+    "tls": true,
+    "fabricXImages": {
+      "committerTestNode": "ghcr.io/hyperledger/fabric-x-committer-test-node:0.1.7",
+      "toolsBaseImage": "registry.access.redhat.com/ubi9/ubi-minimal:9.6"
+    }
+  },
+  "orgs": [
+    {
+      "organization": {
+        "name": "Org1",
+        "domain": "org1.example.com",
+        "mspName": "Org1MSP"
+      },
+      "ca": {
+        "prefix": "ca"
+      },
+      "committers": [
+        {
+          "name": "committer-test-node",
+          "mode": "bundled",
+          "ports": {
+            "sidecar": 4001,
+            "orderer": 7050,
+            "queryService": 7001,
+            "database": 5433
+          },
+          "sidecar": {
+            "channelId": "mychannel",
+            "blockSize": 1,
+            "signedEnvelopes": true,
+            "mspDir": "/root/config/crypto/peerOrganizations/org1.example.com/peers/SC.org1.example.com/msp",
+            "mspId": "Org1MSP"
+          },
+          "logging": {
+            "sidecar": "DEBUG",
+            "queryService": "DEBUG",
+            "coordinator": "DEBUG",
+            "orderer": "DEBUG",
+            "vc": "DEBUG",
+            "verifier": "INFO"
+          }
+        }
+      ],
+      "endorsers": [
+        {
+          "name": "endorser1",
+          "nodeType": "endorser",
+          "ports": {
+            "api": 9300,
+            "p2p": 9301
+          },
+          "fsc": {
+            "id": "endorser1",
+            "p2pListenAddress": "/ip4/0.0.0.0/tcp/9301",
+            "driver": "fabricx"
+          },
+          "db": {
+            "type": "sqlite",
+            "datasource": "file:./data/fts.sqlite"
+          }
+        },
+        {
+          "name": "endorser2",
+          "nodeType": "endorser",
+          "ports": {
+            "api": 9400,
+            "p2p": 9401
+          },
+          "fsc": {
+            "id": "endorser2",
+            "p2pListenAddress": "/ip4/0.0.0.0/tcp/9401",
+            "driver": "fabricx"
+          },
+          "db": {
+            "type": "sqlite",
+            "datasource": "file:./data/fts.sqlite"
+          }
+        }
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "name": "mychannel",
+      "orgs": [
+        {
+          "name": "Org1",
+          "endorsers": ["endorser1", "endorser2"]
+        }
+      ]
+    }
+  ]
+}

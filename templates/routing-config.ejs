@@ -1,0 +1,14 @@
+<%#
+  EJS template for routing-config.yaml generation.
+  Generated once per FSC node — every node gets its own copy
+  listing ALL other nodes in the mesh.
+
+  Template variables:
+    - allNodes[] : FscNodeJson[] (all FSC nodes in the network)
+    - org        : OrgJsonExtended
+%>
+routes:
+<% allNodes.forEach(n => { %>
+  <%= n.fsc.id %>:
+    - <%= n.fsc.id %>.<%= org.organization.domain %>:<%= n.ports.p2p %>
+<% }) %>

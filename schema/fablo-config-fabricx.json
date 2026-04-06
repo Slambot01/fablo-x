@@ -1,8 +1,9 @@
 {
   "global": {
     "fabricVersion": "x-0.1.7",
+    "caVersion": "1.5.12",
     "engine": "fabric-x",
-    "tls": false,
+    "tls": true,
     "fabricXImages": {
       "committerTestNode": "ghcr.io/hyperledger/fabric-x-committer-test-node:0.1.7",
       "toolsBaseImage": "registry.access.redhat.com/ubi9/ubi-minimal:9.6"
@@ -17,7 +18,8 @@
       },
       "ca": {
         "prefix": "ca",
-        "db": "sqlite"
+        "db": "sqlite",
+        "port": 7054
       },
       "committers": [
         {
@@ -63,6 +65,40 @@
             "datasource": "file:./data/fts.sqlite"
           }
         }
+      ],
+      "fscNodes": [
+        {
+          "name": "issuer",
+          "domain": "org1.example.com",
+          "ports": {
+            "p2p": 9101
+          },
+          "excludeFromResolvers": false
+        },
+        {
+          "name": "auditor",
+          "domain": "auditor.example.com",
+          "ports": {
+            "p2p": 9201
+          },
+          "excludeFromResolvers": true
+        },
+        {
+          "name": "owner1",
+          "domain": "org1.example.com",
+          "ports": {
+            "p2p": 9501
+          },
+          "excludeFromResolvers": false
+        },
+        {
+          "name": "owner2",
+          "domain": "org1.example.com",
+          "ports": {
+            "p2p": 9601
+          },
+          "excludeFromResolvers": false
+        }
       ]
     },
     {
@@ -87,7 +123,8 @@
           "db": {
             "type": "sqlite",
             "datasource": "file:./data/fts.sqlite"
-          }
+          },
+          "peerUsage": "delivery"
         }
       ]
     }

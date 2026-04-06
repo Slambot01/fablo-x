@@ -1,6 +1,4 @@
-<%# Routing config template — Fabric-X mode %>
-<%# Source reference: fabric-x/samples/tokens/conf/endorser1/routing-config.yaml %>
-
+# Source: fabric-x/samples/tokens/conf/<%= node.name %>/routing-config.yaml
 routes:
 <% allFscNodes.forEach(function(node) { -%>
   <%= node.name %>:

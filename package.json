@@ -1,0 +1,20 @@
+{
+  "name": "fablo-fabricx-generator",
+  "version": "1.0.0",
+  "description": "Fablo Fabric-X Generator POC",
+  "main": "dist/generate.js",
+  "scripts": {
+    "generate": "ts-node src/generate.ts",
+    "verify": "ts-node src/verify.ts",
+    "generate:verify": "npm run generate && npm run verify"
+  },
+  "dependencies": {
+    "ejs": "^3.1.9"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/node": "^20.11.16",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

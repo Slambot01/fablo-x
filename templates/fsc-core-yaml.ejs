@@ -1,5 +1,5 @@
-<%# FSC core.yaml template — Fabric-X mode %>
-<%# Source reference: fabric-x/samples/tokens/conf/endorser1/core.yaml %>
+# FSC core.yaml for <%= node.name %>
+# Source: fabric-x/samples/tokens/conf/<%= node.name %>/core.yaml
 
 logging:
   spec: info
@@ -29,6 +29,7 @@ fsc:
   endpoint:
     resolvers:
 <% allFscNodes.forEach(function(peer) { -%>
+<% if (!peer.excludeFromResolvers) { -%>
       - name: <%= peer.name %>
         domain: <%= peer.domain %>
         identity:
@@ -36,6 +37,7 @@ fsc:
           path: /conf/fsc/<%= peer.name %>/signcerts/<%= peer.name %>-cert.pem
         addresses:
           Listen: <%= peer.name %>.example.com:<%= peer.ports.p2p %>
+<% } -%>
 <% }); -%>
 
 fabric:
@@ -51,7 +53,7 @@ fabric:
       enabled: false
     peers:
       - address: committer-sidecar:<%= committer.ports.sidecar %>
-        usage: <%= node.peerUsage || '' %>
+        usage:<%- node.peerUsage ? ' ' + node.peerUsage : '' %>
     queryService:
       - address: committer-queryservice:<%= committer.ports.queryService %>
     channels:
@@ -66,5 +68,15 @@ token:
       channel: <%= channelName %>
       namespace: token_namespace
       driver: zkatdlog
+      services:
+        network:
+          fabric:
+            fsc_endorsement:
+              endorser: true
+              id: endorser
+              policy:
+                type: all
+              endorsers:
+                - endorser1
       publicParameters:
         path: ../namespace/zkatdlognoghv1_pp.json

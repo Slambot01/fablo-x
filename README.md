@@ -10,6 +10,55 @@ This POC maps how Fablo's generation pipeline extends to support Fabric-X's
 decomposed FSC (Fabric Smart Client) architecture. Built from direct analysis
 of `fabric-x/samples/tokens/` source files.
 
+**This is a fully executable prototype, not just static files.** It programmatically generates Fabric-X configurations from a schema using EJS templates and strictly verifies them line-by-line against hand-crafted ground truth samples.
+
+## Running the Config Generator
+
+You can run the generation tool built into this POC to see exactly how Fablo will construct the Docker Compose and node configurations for Fabric-X dynamically:
+
+```bash
+# 1. Install TypeScript and EJS dependencies
+npm install
+
+# 2. Generates files and perfectly verifies against ground truth
+npm run generate:verify
+```
+
+### Expected Output
+
+```plaintext
+> fablo-fabricx-generator@1.0.0 generate:verify
+> npm run generate && npm run verify
+
+> fablo-fabricx-generator@1.0.0 generate
+> ts-node src/generate.ts
+
+Starting Fabric-X configuration generation...
+ ✓ Generated docker-compose.yml
+ ✓ Generated conf/endorser1/core.yaml
+ ✓ Generated conf/endorser1/routing-config.yaml
+ ✓ Generated conf/endorser2/core.yaml
+ ✓ Generated conf/endorser2/routing-config.yaml
+Generation completed successfully!
+
+> fablo-fabricx-generator@1.0.0 verify
+> ts-node src/verify.ts
+
+Verifying generated outputs against ground truth...
+ ✓ MATCH: conf/endorser1/core.yaml
+ ✓ MATCH: conf/endorser1/routing-config.yaml
+ ✓ MATCH: conf/endorser2/core.yaml
+ ✓ MATCH: conf/endorser2/routing-config.yaml
+ ✓ MATCH: docker-compose.yml
+
+✅ Verification passed! All generated files perfectly match the ground truth.
+```
+
+### Generator Scripts
+
+- `npm run generate`: Executed via `src/generate.ts`. Parses the Fablo schema extensions in `schema/fablo-config-fabricx.json`, injects context into EJS templates inside `templates/`, and dynamically outputs the Docker compose network and FSC nodes logic inside `generated-output/`.
+- `npm run verify`: Executed via `src/verify.ts`. Systematically traverses every output file in `generated-output/` and compares it character-by-character to the hand-crafted `generated/` reference root, aborting on any mismatches.
+
 ## Architecture
 
 In Fabric-X, the monolithic peer is replaced by an FSC overlay:
@@ -48,12 +97,15 @@ derived from the committer-test-node Docker image's configuration interface
 
 ## Contents
 
-| Directory | What It Shows |
+| Directory / File | What It Shows |
 |-----------|--------------|
 | `docs/` | Architecture mapping ([architecture-mapping.md](docs/architecture-mapping.md)) and codebase analysis ([fablo-codebase-changes.md](docs/fablo-codebase-changes.md)) |
 | `schema/` | Schema extensions ([fablo-config-fabricx.json](schema/fablo-config-fabricx.json)) and Typings ([FabloConfigJson.fabricx.ts](schema/FabloConfigJson.fabricx.ts)) |
-| `generated/` | Sample output: [docker-compose.yml](generated/docker-compose.yml), [core.yaml](generated/conf/endorser1/core.yaml), [routing-config.yaml](generated/conf/endorser1/routing-config.yaml), [fabricx-up.sh](generated/scripts/fabricx-up.sh) |
 | `templates/` | Source EJS prototypes: [docker-compose-fabricx.ejs](templates/docker-compose-fabricx.ejs), [fsc-core-yaml.ejs](templates/fsc-core-yaml.ejs), [routing-config.ejs](templates/routing-config.ejs) |
+| `generated/` | Ground Truth reference: [docker-compose.yml](generated/docker-compose.yml), [core.yaml](generated/conf/endorser1/core.yaml), [routing-config.yaml](generated/conf/endorser1/routing-config.yaml), [fabricx-up.sh](generated/scripts/fabricx-up.sh) |
+| `generated-output/` | Dynamic output built locally running `npm run generate` |
+| `src/` | Generator code: [generate.ts](src/generate.ts) handles config scaffolding, while [verify.ts](src/verify.ts) enforces identical output rendering. |
+| `package.json` / `tsconfig.json` | Local tooling config for the Typescript executable. |
 
 Source references are noted inline. All values derived from
 `fabric-x/samples/tokens/` unless otherwise noted.

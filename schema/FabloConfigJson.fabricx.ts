@@ -69,19 +69,24 @@ interface FscDbJson {
 
 interface FscNodeJson {
   name: string;
-  nodeType: "endorser" | "issuer" | "owner";
-  ports: FscPortsJson;
-  fsc: FscConfigJson;
-  db: FscDbJson;
+  role: "issuer" | "auditor" | "endorser" | "owner";
+  domain?: string;
+  nodeType?: string;
+  ports?: Record<string, unknown>;
+  fsc?: Record<string, unknown>;
+  db?: Record<string, unknown>;
+  excludeFromResolvers?: boolean;
+  peerUsage?: string;
 }
 
 interface OrgJsonExtended {
   organization: { name: string; domain: string; mspName: string };
-  ca?: Record<string, unknown>;  // CaJson — defined in Fablo's src/types/FabloConfigJson.ts
-  peers?: Record<string, unknown>[];   // PeerJson[] — classic Fabric only
+  ca?: Record<string, unknown>;       // CaJson from existing Fablo types
+  peers?: Record<string, unknown>[];  // PeerJson[] — classic Fabric only
   orderers?: Record<string, unknown>[]; // OrdererJson[] — classic Fabric only
   committers?: CommitterJson[];  // Fabric-X only
   endorsers?: FscNodeJson[];     // Fabric-X only
+  fscNodes?: FscNodeJson[];
 }
 
 // Validation rules:

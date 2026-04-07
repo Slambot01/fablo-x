@@ -60,6 +60,7 @@ fabric:
       - name: <%= channelName %>
         default: true
 
+<% if (node.role !== 'auditor') { -%>
 token:
   enabled: true
   tms:
@@ -80,3 +81,4 @@ token:
                 - endorser1
       publicParameters:
         path: ../namespace/zkatdlognoghv1_pp.json
+<% } -%>

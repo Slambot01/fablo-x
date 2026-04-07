@@ -51,53 +51,37 @@
         {
           "name": "endorser1",
           "nodeType": "endorser",
-          "ports": {
-            "api": 9300,
-            "p2p": 9301
-          },
           "fsc": {
             "id": "endorser1",
-            "p2pListenAddress": "/ip4/0.0.0.0/tcp/9301",
             "driver": "fabricx"
           },
           "db": {
             "type": "sqlite",
             "datasource": "file:./data/fts.sqlite"
-          }
+          },
+          "role": "endorser"
         }
       ],
       "fscNodes": [
         {
           "name": "issuer",
           "domain": "org1.example.com",
-          "ports": {
-            "p2p": 9101
-          },
-          "excludeFromResolvers": false
+          "role": "issuer"
         },
         {
           "name": "auditor",
           "domain": "auditor.example.com",
-          "ports": {
-            "p2p": 9201
-          },
-          "excludeFromResolvers": true
+          "role": "auditor"
         },
         {
           "name": "owner1",
           "domain": "org1.example.com",
-          "ports": {
-            "p2p": 9501
-          },
-          "excludeFromResolvers": false
+          "role": "owner"
         },
         {
           "name": "owner2",
           "domain": "org1.example.com",
-          "ports": {
-            "p2p": 9601
-          },
-          "excludeFromResolvers": false
+          "role": "owner"
         }
       ]
     },
@@ -111,20 +95,16 @@
         {
           "name": "endorser2",
           "nodeType": "endorser",
-          "ports": {
-            "api": 9400,
-            "p2p": 9401
-          },
           "fsc": {
             "id": "endorser2",
-            "p2pListenAddress": "/ip4/0.0.0.0/tcp/9401",
             "driver": "fabricx"
           },
           "db": {
             "type": "sqlite",
             "datasource": "file:./data/fts.sqlite"
           },
-          "peerUsage": "delivery"
+          "peerUsage": "delivery",
+          "role": "endorser"
         }
       ]
     }
@@ -135,11 +115,15 @@
       "orgs": [
         {
           "name": "Org1",
-          "endorsers": ["endorser1"]
+          "endorsers": [
+            "endorser1"
+          ]
         },
         {
           "name": "Org2",
-          "endorsers": ["endorser2"]
+          "endorsers": [
+            "endorser2"
+          ]
         }
       ]
     }

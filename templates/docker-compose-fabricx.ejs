@@ -66,39 +66,36 @@ services:
 <% }); -%>
 <% } -%>
 
-<% if (org.endorsers) { -%>
-<% org.endorsers.forEach(function(endorser) { -%>
-  <%= endorser.name %>.<%= org.organization.domain %>:
-    hostname: <%= endorser.name %>.example.com
+<% allFscNodes.forEach(function(fscNode) { -%>
+  <%= fscNode.name %>.<%= fscNode.domain %>:
+    hostname: <%= fscNode.name %>.example.com
     restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        NODE_TYPE: <%= endorser.nodeType %>
+        NODE_TYPE: <%= fscNode.nodeType %>
         PLATFORM: "${PLATFORM:-fabricx}"
-    container_name: <%= endorser.name %>.<%= org.organization.domain %>
+    container_name: <%= fscNode.name %>.<%= fscNode.domain %>
     extra_hosts:
       - "committer-sidecar:host-gateway"
       - "committer-queryservice:host-gateway"
       - "orderer.example.com:host-gateway"
     expose:
       - 9001
-      - <%= endorser.ports.p2p %>
+      - <%= fscNode.ports.p2p %>
     ports:
-      - "<%= endorser.ports.api %>:9000/tcp"
+      - "<%= fscNode.ports.api %>:9000/tcp"
     volumes:
-      - ./${CONF_ROOT:-conf}/<%= endorser.name %>:/conf
-<% if (endorser.name === 'endorser1') { -%>
+      - ./${CONF_ROOT:-conf}/<%= fscNode.name %>:/conf
+<% if (fscNode.name === 'endorser1') { -%>
       - ./${CONF_ROOT:-conf}/namespace/zkatdlognoghv1_pp.json:/namespace/zkatdlognoghv1_pp.json
 <% } -%>
     depends_on:
-<% var committerName = org.committers ? org.committers[0].name : orgs[0].committers[0].name; -%>
-      <%= committerName %>:
+      <%= fscNode.committerName %>:
         condition: service_healthy
     networks:
       - test
 <% }); -%>
-<% } -%>
 
 <% }); -%>

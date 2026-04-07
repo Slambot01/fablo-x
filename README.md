@@ -10,7 +10,7 @@ This POC maps how Fablo's generation pipeline extends to support Fabric-X's
 decomposed FSC (Fabric Smart Client) architecture. Built from direct analysis
 of `fabric-x/samples/tokens/` source files.
 
-**This is a fully executable prototype, not just static files.** It programmatically generates Fabric-X configurations from a schema using EJS templates and verifies them against reference files.
+**This is a fully executable prototype, not just static files.** It programmatically generates Fabric-X configurations from a schema using EJS templates and strictly verifies them line-by-line against hand-crafted ground truth samples.
 
 ## Running the Config Generator
 
@@ -57,7 +57,7 @@ Verifying generated outputs against ground truth...
 ### Generator Scripts
 
 - `npm run generate`: Executed via `src/generate.ts`. Parses the Fablo schema extensions in `schema/fablo-config-fabricx.json`, injects context into EJS templates inside `templates/`, and dynamically outputs the Docker compose network and FSC nodes logic inside `generated-output/`.
-- `npm run verify`: Executed via `src/verify.ts`. Compares each generated file in `generated-output/` against the expected reference in `generated/`.
+- `npm run verify`: Executed via `src/verify.ts`. Systematically traverses every output file in `generated-output/` and compares it character-by-character to the hand-crafted `generated/` reference root, aborting on any mismatches.
 
 ## Architecture
 

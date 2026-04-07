@@ -74,6 +74,18 @@ function verify() {
     }
   }
 
+  const outputFiles = getAllFiles(OUTPUT_DIR);
+  for (const outputFile of outputFiles) {
+    const relativePath = path.relative(OUTPUT_DIR, outputFile);
+    if (relativePath.includes('fabricx-up.sh')) continue;
+    
+    const truthFile = path.join(GROUND_TRUTH_DIR, relativePath);
+    if (!fs.existsSync(truthFile)) {
+      console.error(`\n❌ Extra generated file not in ground truth: ${relativePath}`);
+      hasDiff = true;
+    }
+  }
+
   if (hasDiff) {
     console.error('\nVerification failed! Differences found.');
     process.exit(1);

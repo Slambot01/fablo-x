@@ -6,7 +6,11 @@
   "scripts": {
     "generate": "ts-node src/generate.ts",
     "verify": "ts-node src/verify.ts",
-    "generate:verify": "npm run generate && npm run verify"
+    "generate:verify": "npm run generate && npm run verify",
+    "network:up": "./fablo-fabricx.sh up",
+    "network:down": "./fablo-fabricx.sh down",
+    "network:test": "./fablo-fabricx.sh test",
+    "network:status": "./fablo-fabricx.sh status"
   },
   "dependencies": {
     "ejs": "^3.1.9"

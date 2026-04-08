@@ -1,111 +1,132 @@
-# Fabric-X Integration into Fablo — Proof of Concept
+# Fablo-FabricX
 
-**Author:** Ritesh Pandit [@Slambot01](https://github.com/Slambot01)  
-**Mentorship Issue:** [LF-Decentralized-Trust-Mentorships #83](https://github.com/LF-Decentralized-Trust-Mentorships/mentorship-program/issues/83)  
-**Fablo Issue:** [hyperledger-labs/fablo #611](https://github.com/hyperledger-labs/fablo/issues/611)  
+A proof-of-concept tool that generates configuration and manages the lifecycle of Hyperledger Fabric-X networks — bringing the Fablo experience to Fabric-X.
 
-## Purpose
+Built as part of my application for the [LFDT Mentorship: Fablo + Fabric-X Integration](https://github.com/LF-Decentralized-Trust-Mentorships/mentorship-program/issues/83).
 
-This POC maps how Fablo's generation pipeline extends to support Fabric-X's
-decomposed FSC (Fabric Smart Client) architecture. Built from direct analysis
-of `fabric-x/samples/tokens/` source files.
+## What This Does
 
-**This is a fully executable prototype, not just static files.** It programmatically generates Fabric-X configurations from a schema using EJS templates and strictly verifies them line-by-line against hand-crafted ground truth samples.
+| Capability | Status |
+|-----------|--------|
+| Generate Fabric-X configs from JSON schema | ✅ Working |
+| Dynamic topology (arbitrary endorsers/owners) | ✅ Working |
+| Bootstrap a local Fabric-X network | ✅ Working |
+| Full network lifecycle (up/down/status) | ✅ Working |
+| Automated token lifecycle E2E test | ✅ Working |
 
-## Running the Config Generator
+## Quick Start
 
-You can run the generation tool built into this POC to see exactly how Fablo will construct the Docker Compose and node configurations for Fabric-X dynamically:
+### Prerequisites
+- WSL2 with Ubuntu (or native Linux/macOS)
+- Docker Desktop with WSL integration enabled
+- Go 1.24+ installed
+- Node.js 18+ installed
+- Fabric-X samples set up at ~/lfdt-project/fabric-x/samples/tokens/
+  (follow [Fabric-X setup instructions](https://github.com/hyperledger/fabric-x))
 
+### Generate Configuration
 ```bash
-# 1. Install TypeScript and EJS dependencies
 npm install
-
-# 2. Generates files and perfectly verifies against ground truth
-npm run generate:verify
+npm run generate         # generates all Fabric-X config files
+npm run verify           # validates generated output matches reference
+npm run generate:verify  # both in one step
 ```
 
-### Expected Output
-
-```plaintext
-> fablo-fabricx-generator@1.0.0 generate:verify
-> npm run generate && npm run verify
-
-> fablo-fabricx-generator@1.0.0 generate
-> ts-node src/generate.ts
-
-Starting Fabric-X configuration generation...
- ✓ Generated docker-compose.yml
- ✓ Generated conf/endorser1/core.yaml
- ✓ Generated conf/endorser1/routing-config.yaml
- ✓ Generated conf/endorser2/core.yaml
- ✓ Generated conf/endorser2/routing-config.yaml
-Generation completed successfully!
-
-> fablo-fabricx-generator@1.0.0 verify
-> ts-node src/verify.ts
-
-Verifying generated outputs against ground truth...
- ✓ MATCH: conf/endorser1/core.yaml
- ✓ MATCH: conf/endorser1/routing-config.yaml
- ✓ MATCH: conf/endorser2/core.yaml
- ✓ MATCH: conf/endorser2/routing-config.yaml
- ✓ MATCH: docker-compose.yml
-
-✅ Verification passed! All generated files perfectly match the ground truth.
+### Network Lifecycle
+```bash
+./fablo-fabricx.sh up      # start the full Fabric-X network
+./fablo-fabricx.sh status  # check container health
+./fablo-fabricx.sh test    # run automated token lifecycle E2E test
+./fablo-fabricx.sh down    # tear down everything
 ```
 
-### Generator Scripts
+### What Happens During `./fablo-fabricx.sh up`
+- Creates Docker network (`fabric_test`)
+- Starts `committer-test-node` (orderer + committer + DB)
+- Creates `token_namespace` on the ledger
+- Starts all FSC nodes (issuer, endorser1, endorser2, owner1, owner2)
+- Waits for all health checks to pass
+- Initializes the endorser
+- Prints endpoint URLs
 
-- `npm run generate`: Executed via `src/generate.ts`. Parses the Fablo schema extensions in `schema/fablo-config-fabricx.json`, injects context into EJS templates inside `templates/`, and dynamically outputs the Docker compose network and FSC nodes logic inside `generated-output/`.
-- `npm run verify`: Executed via `src/verify.ts`. Systematically traverses every output file in `generated-output/` and compares it character-by-character to the hand-crafted `generated/` reference root, aborting on any mismatches.
+### What Happens During `./fablo-fabricx.sh test`
+- Verifies all 5 FSC nodes are healthy
+- Issues 100 EURX tokens to alice (owner1)
+- Issues 50 EURX tokens to carlos (owner2)
+- Verifies balances
+- Transfers 30 EURX from alice to carlos
+- Verifies final balances (alice: 70, carlos: 80)
+- Checks transaction histories
+- Reports PASS/FAIL
 
 ## Architecture
 
-In Fabric-X, the monolithic peer is replaced by an FSC overlay:
+This POC explores what a Fablo integration for Fabric-X would look like. It maps Fablo's generation pipeline to support Fabric-X's decomposed FSC (Fabric Smart Client) architecture. Instead of monolithic peers, this tool generates logic for lightweight nodes that interact over a P2P websocket mesh while utilizing external committer infrastructures. For a detailed breakdown of the components and mappings, please refer to [docs/architecture-mapping.md](docs/architecture-mapping.md).
 
+### Fabric-X Components
+| Component | Image | Role |
+|-----------|-------|------|
+| committer-test-node | `ghcr.io/hyperledger/fabric-x-committer-test-node:0.1.7` | Orderer + Committer + DB |
+| issuer | Built from source (`PLATFORM=fabricx`) | Issues tokens |
+| endorser1 | Built from source (`PLATFORM=fabricx`) | Endorses transactions |
+| endorser2 | Built from source (`PLATFORM=fabricx`) | Endorses transactions (delivery) |
+| owner1 | Built from source (`PLATFORM=fabricx`) | Holds/transfers tokens |
+| owner2 | Built from source (`PLATFORM=fabricx`) | Holds/transfers tokens |
+
+### API Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/healthz` | GET | Health check |
+| `/readyz` | GET | Readiness check |
+| `/endorser/init` | POST | Initialize token parameters |
+| `/issuer/issue` | POST | Issue tokens |
+| `/owner/accounts` | GET | List accounts |
+| `/owner/accounts/{id}` | GET | Account balance |
+| `/owner/accounts/{id}/transfer` | POST | Transfer tokens |
+| `/owner/accounts/{id}/transactions` | GET | Transaction history |
+
+## Key Discoveries During Development
+
+During deployment, I discovered and fixed two undocumented issues:
+
+- **Channel Name Mismatch**: The xdev setup path creates channel `mychannel`, but all FSC node configs referenced `arma` (the ansible path name). Fixed by updating all 5 core.yaml files.
+- **Namespace Creation Flags**: The `fxconfig namespace create` command requires specific flags including `--mspConfigPath` pointing to `channel_admin` (not Admin) and a `--pk` flag that is deprecated but still required.
+
+These are documented in detail in `docs/evidence/ANALYSIS.md`.
+
+## Project Structure
+```text
+├── fablo-fabricx.sh          # Network lifecycle manager
+├── src/
+│   ├── generate.ts           # Dynamic config generator
+│   └── verify.ts             # Output verification
+├── schema/
+│   ├── fablo-config-fabricx.json    # Network topology definition
+│   └── FabloConfigJson.fabricx.ts   # TypeScript type definitions
+├── templates/
+│   ├── docker-compose-fabricx.ejs   # Docker compose template
+│   ├── fsc-core-yaml.ejs           # FSC node config template
+│   └── routing-config.ejs          # Routing config template
+├── generated/                 # Reference output files
+├── docs/
+│   ├── architecture-mapping.md
+│   ├── fablo-codebase-changes.md
+│   └── evidence/
+│       ├── ANALYSIS.md
+│       ├── fabric-x-evidence.txt
+│       ├── fabric-x-token-lifecycle.txt
+│       └── collect_evidence.sh
+└── e2e/                       # (test artifacts)
 ```
-committer-test-node (external infrastructure)
-┌──────────┬──────────┬─────────┬─────────┐
-│ Orderer  │Committer │ DB      │ Query   │
-│  :7050   │   :4001  │  :5433  │  :7001  │
-└──────────┴──────────┴─────────┴─────────┘
-                    ▲  websocket P2P mesh via routing-config.yaml
-┌───────────┐ ┌─────┴─────┐ ┌───────────┐
-│ endorser1 │ │ issuer    │ │ owner1    │
-│ Org1MSP   │ │ Org1MSP   │ │ Org1MSP   │
-│ API:9300  │ │ API:9100  │ │ API:9500  │
-│ P2P:9301  │ │ P2P:9101  │ │ P2P:9501  │
-└───────────┘ └───────────┘ └───────────┘
-```
 
-Key differences from classic Fabric:
-- FSC core.yaml uses `fsc.id`, `fsc.p2p`, `fabric.default.driver: fabricx`
-- P2P mesh via websocket, routed through `routing-config.yaml`
-- committer-test-node is started separately, FSC nodes join external `fabric_test` network
-- Endorser images build from context with `PLATFORM=fabricx` build tag
-- crypto-config.yaml requires `Hostname: SC` for sidecar identity
+## Related Work
 
-## Design Decision: Self-Contained Compose
+- **BFT Validation PR**: [PR #685 on upstream Fablo](https://github.com/hyperledger-labs/fablo/pull/685) — adds BFT consensus validation
+- **Mentorship Issue**: [#83](https://github.com/LF-Decentralized-Trust-Mentorships/mentorship-program/issues/83)
+- **Fablo Issue**: [#611](https://github.com/hyperledger-labs/fablo/issues/611) — Fabric-X support tracking
 
-In real Fabric-X, the committer-test-node runs as separate infrastructure and
-FSC nodes connect via an external Docker network (`fabric_test`). This POC
-includes the committer-test-node in the same compose file because Fablo's
-value proposition is single-command deployment (`fablo up`). This is a
-deliberate design choice, not an oversight. The `SC_SIDECAR_*` env vars are
-derived from the committer-test-node Docker image's configuration interface
-(see `fabric-x-committer` repo).
+## Author
 
-## Contents
-
-| Directory / File | What It Shows |
-|-----------|--------------|
-| `docs/` | Architecture mapping ([architecture-mapping.md](docs/architecture-mapping.md)) and codebase analysis ([fablo-codebase-changes.md](docs/fablo-codebase-changes.md)) |
-| `schema/` | Schema extensions ([fablo-config-fabricx.json](schema/fablo-config-fabricx.json)) and Typings ([FabloConfigJson.fabricx.ts](schema/FabloConfigJson.fabricx.ts)) |
-| `templates/` | Source EJS prototypes: [docker-compose-fabricx.ejs](templates/docker-compose-fabricx.ejs), [fsc-core-yaml.ejs](templates/fsc-core-yaml.ejs), [routing-config.ejs](templates/routing-config.ejs) |
-| `generated/` | Ground Truth reference: [docker-compose.yml](generated/docker-compose.yml), [core.yaml](generated/conf/endorser1/core.yaml), [routing-config.yaml](generated/conf/endorser1/routing-config.yaml), [fabricx-up.sh](generated/scripts/fabricx-up.sh) |
-| `generated-output/` | Dynamic output built locally running `npm run generate` |
-| `src/` | Generator code: [generate.ts](src/generate.ts) handles config scaffolding, while [verify.ts](src/verify.ts) enforces identical output rendering. |
-| `package.json` / `tsconfig.json` | Local tooling config for the Typescript executable. |
-
-Source references are noted inline. All values derived from
-`fabric-x/samples/tokens/` unless otherwise noted.
+**Ritesh Pandit**
+- GitHub: [@Slambot01](https://github.com/Slambot01)
+- Email: riteshpandit1708@gmail.com

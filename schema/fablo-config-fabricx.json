@@ -32,7 +32,7 @@
             "database": 5433
           },
           "sidecar": {
-            "channelId": "arma",
+            "channelId": "mychannel",
             "blockSize": 1,
             "signedEnvelopes": true,
             "mspId": "Org1MSP"
@@ -66,7 +66,12 @@
         {
           "name": "issuer",
           "domain": "org1.example.com",
-          "role": "issuer"
+          "role": "issuer",
+          "wallets": {
+            "issuers": [
+              { "id": "iss", "path": "./keys/wallet/iss" }
+            ]
+          }
         },
         {
           "name": "auditor",
@@ -76,12 +81,25 @@
         {
           "name": "owner1",
           "domain": "org1.example.com",
-          "role": "owner"
+          "role": "owner",
+          "wallets": {
+            "owners": [
+              { "id": "alice", "path": "./keys/wallet/alice/msp" },
+              { "id": "bob", "path": "./keys/wallet/bob/msp" }
+            ]
+          }
         },
         {
           "name": "owner2",
           "domain": "org1.example.com",
-          "role": "owner"
+          "role": "owner",
+          "defaultMSP": "user",
+          "wallets": {
+            "owners": [
+              { "id": "carlos", "path": "./keys/wallet/carlos/msp" },
+              { "id": "dan", "path": "./keys/wallet/dan/msp" }
+            ]
+          }
         }
       ]
     },
@@ -111,7 +129,7 @@
   ],
   "channels": [
     {
-      "name": "arma",
+      "name": "mychannel",
       "orgs": [
         {
           "name": "Org1",

@@ -73,10 +73,17 @@ function generate() {
       endorserCount++;
       if (endorserCount === 1) {
         node.peerUsage = '';
+        node.hasPublicParameters = true;
       } else {
         node.peerUsage = 'delivery';
+        node.hasPublicParameters = false;
       }
+    } else {
+      node.peerUsage = 'delivery';
+      node.hasPublicParameters = false;
     }
+    node.fabricMspId = (node.role === 'endorser') ? 'endorser' : 'user';
+    node.isEndorser = (node.role === 'endorser');
     if (!node.fsc) node.fsc = {};
     node.fsc.id = node.name;
     node.fsc.p2pListenAddress = `/ip4/0.0.0.0/tcp/${node.ports.p2p}`;

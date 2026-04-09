@@ -10,9 +10,30 @@ Built as part of my application for the [LFDT Mentorship: Fablo + Fabric-X Integ
 |-----------|--------|
 | Generate Fabric-X configs from JSON schema | ✅ Working |
 | Dynamic topology (arbitrary endorsers/owners) | ✅ Working |
-| Bootstrap a local Fabric-X network | ✅ Working |
+| **Connected pipeline: generate → deploy → start** | ✅ Working |
 | Full network lifecycle (up/down/status) | ✅ Working |
 | Automated token lifecycle E2E test | ✅ Working |
+
+## The Fablo-FabricX Pipeline
+
+```text
+┌─────────────────────┐    ┌──────────────────────┐    ┌─────────────────┐
+│  fablo-config-      │    │   Config Generator   │    │    Fabric-X     │
+│  fabricx.json       │───▶│   (EJS templates)    │───▶│    Network      │
+│                     │    │                      │    │    (Docker)     │
+│  Define topology:   │    │  Produces:           │    │                 │
+│  - endorsers        │    │  - core.yaml / node  │    │  Running with   │
+│  - owners           │    │  - routing-config    │    │  YOUR generated │
+│  - issuer           │    │  - docker-compose    │    │  configs        │
+└─────────────────────┘    └──────────────────────┘    └─────────────────┘
+```
+
+The `./fablo-fabricx.sh up` command executes this entire pipeline:
+1. **Generates** all config files from your JSON topology definition
+2. **Deploys** generated configs into the Fabric-X deployment (backing up originals)
+3. **Starts** the committer infrastructure + all FSC nodes
+4. **Verifies** health of all nodes
+5. The `down` command **restores** original configs automatically
 
 ## Quick Start
 
@@ -24,32 +45,66 @@ Built as part of my application for the [LFDT Mentorship: Fablo + Fabric-X Integ
 - Fabric-X samples set up at ~/lfdt-project/fabric-x/samples/tokens/
   (follow [Fabric-X setup instructions](https://github.com/hyperledger/fabric-x))
 
-### Generate Configuration
+### One Command Start
 ```bash
 npm install
+
+# Generate + Deploy + Start — all in one command
+./fablo-fabricx.sh up
+
+# Verify the network works
+./fablo-fabricx.sh test
+
+# Check status
+./fablo-fabricx.sh status
+
+# Tear down (restores original configs)
+./fablo-fabricx.sh down
+```
+
+### Step by Step
+```bash
+# 1. Generate configs from your topology definition
+./fablo-fabricx.sh generate
+
+# 2. Start the network with generated configs
+./fablo-fabricx.sh up
+
+# 3. Run automated E2E token lifecycle test
+./fablo-fabricx.sh test
+
+# 4. Tear down
+./fablo-fabricx.sh down
+```
+
+### Change the Topology
+
+Edit `schema/fablo-config-fabricx.json` to add/remove endorsers, owners, etc.
+Then run `./fablo-fabricx.sh up` — the generator automatically produces new configs
+and deploys them to the network.
+
+### Generate & Verify Only
+```bash
 npm run generate         # generates all Fabric-X config files
 npm run verify           # validates generated output matches reference
 npm run generate:verify  # both in one step
 ```
 
-### Network Lifecycle
-```bash
-./fablo-fabricx.sh up      # start the full Fabric-X network
-./fablo-fabricx.sh status  # check container health
-./fablo-fabricx.sh test    # run automated token lifecycle E2E test
-./fablo-fabricx.sh down    # tear down everything
-```
+## What Happens During `./fablo-fabricx.sh up`
 
-### What Happens During `./fablo-fabricx.sh up`
-- Creates Docker network (`fabric_test`)
-- Starts `committer-test-node` (orderer + committer + DB)
-- Creates `token_namespace` on the ledger
-- Starts all FSC nodes (issuer, endorser1, endorser2, owner1, owner2)
-- Waits for all health checks to pass
-- Initializes the endorser
-- Prints endpoint URLs
+1. Restores any leftover backups from a previous crashed run (safety check)
+2. Generates all config files from `schema/fablo-config-fabricx.json`
+3. Deploys generated `core.yaml` and `routing-config.yaml` to Fabric-X (backing up originals as `.bak`)
+4. Creates Docker network (`fabric_test`)
+5. Starts `committer-test-node` (orderer + committer + DB)
+6. Creates `token_namespace` on the ledger
+7. Starts all FSC nodes (issuer, endorser1, endorser2, owner1, owner2)
+8. Waits for all health checks to pass
+9. Initializes the endorser
+10. Prints endpoint URLs
 
-### What Happens During `./fablo-fabricx.sh test`
+## What Happens During `./fablo-fabricx.sh test`
+
 - Verifies all 5 FSC nodes are healthy
 - Issues 100 EURX tokens to alice (owner1)
 - Issues 50 EURX tokens to carlos (owner2)
@@ -96,7 +151,7 @@ These are documented in detail in `docs/evidence/ANALYSIS.md`.
 
 ## Project Structure
 ```text
-├── fablo-fabricx.sh          # Network lifecycle manager
+├── fablo-fabricx.sh          # Network lifecycle manager (generate → deploy → start)
 ├── src/
 │   ├── generate.ts           # Dynamic config generator
 │   └── verify.ts             # Output verification

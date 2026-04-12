@@ -123,7 +123,7 @@ fabric:
     queryService:
       - address: committer-queryservice:7001
     channels:
-      - name: arma
+      - name: mychannel
         default: true
 
 token:
@@ -131,7 +131,7 @@ token:
   tms:
     mytms:
       network: default
-      channel: arma
+      channel: mychannel
       namespace: token_namespace
       driver: zkatdlog
 ```

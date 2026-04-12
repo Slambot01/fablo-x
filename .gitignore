@@ -2,3 +2,8 @@ node_modules/
 dist/
 generated-output/
 *.bak
+scratch-output.txt
+test-output.txt
+scratch-commands.sh
+fix_script.py
+fix_generate.py

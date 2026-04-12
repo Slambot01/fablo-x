@@ -20,7 +20,7 @@ docker run --rm \
   -v "$(pwd)/crypto:/crypto" \
   fabric-x-tools configtxgen \
     -profile OrgsChannel \
-    -channelID arma \
+    -channelID mychannel \
     -outputBlock /crypto/sc-genesis-block.proto.bin \
     -configPath /config
 
@@ -47,7 +47,7 @@ docker run --rm \
   -v "$(pwd)/crypto:/crypto" \
   fabric-x-tools fxconfig namespace create \
     --orderer orderer.example.com:7050 \
-    --channel arma \
+    --channel mychannel \
     --namespace token_namespace \
     --mspConfigPath /crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp \
     --mspID Org1MSP

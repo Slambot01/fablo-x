@@ -93,16 +93,18 @@ During development and testing, several key Fabric-X behavioral details were dia
     └── evidence/              # Testing evidence
 ```
 
-## Related Work
-
-- Upstream PR #685: [BFT validation](https://github.com/hyperledger-labs/fablo/pull/685)
-- Upstream PR #691: [Validation unit tests](https://github.com/hyperledger-labs/fablo/pull/691)
-- LFX Mentorship Issue: [#83](https://github.com/LF-Decentralized-Trust-Mentorships/mentorship-program/issues/83)
-- Fablo Feature Tracking Issue: [#611](https://github.com/hyperledger-labs/fablo/issues/611)
 
 ## Evidence
 
-The `docs/evidence/` directory contains outputs that prove the POC executes successfully on Fabric-X environments.
-- `pipeline-e2e-test.txt`: Complete end-to-end trace proving the pipeline generates configs, deploys them, starts the network, completes token transfers successfully, and dynamically clears state.
-- `fabric-x-token-lifecycle.txt`: Early manual operations log verifying functionality of ZKP token transactions over the network.
-- `ANALYSIS.md`: Documentation of deployment discoveries such as container configuration anomalies.
+The `docs/evidence/` directory contains verified outputs from live Fabric-X deployments:
+
+| File | What It Proves |
+|:---|:---|
+| `session3-full-bootstrap.txt` | Complete pipeline: clean slate → setup → up (7 containers healthy) → test (all balance assertions passed) → down → repeat cycle |
+| `pipeline-e2e-test.txt` | End-to-end trace: generate → deploy → start → token transfers → state cleanup |
+| `fabric-x-token-lifecycle.txt` | Full token lifecycle: endorser init → issue 300 EURX to alice → issue 150 EURX to carlos → transfer 50 → verify final balances (alice: 250, carlos: 200) → committer at block 6 |
+| `ANALYSIS.md` | Deployment discoveries: channel mismatch, namespace flags, SQLite state persistence |
+
+---
+
+*Built as part of the [LFDT Mentorship 2026](https://github.com/LF-Decentralized-Trust-Mentorships/mentorship-program/issues/83) application — Ritesh Pandit*

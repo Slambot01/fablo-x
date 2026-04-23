@@ -1,7 +1,8 @@
-# Fablo-FabricX POC
+# Fablo-X
 
-A proof-of-concept for integrating Hyperledger Fablo with Fabric-X.
-This tool dynamically generates Fabric-X network configurations from a standard JSON schema, and deploys and manages the full network lifecycle including infrastructure and Fabric Smart Client (FSC) nodes.
+**A one-command bootstrap tool for Fabric-X networks.**
+
+Fablo-X dynamically generates Fabric-X network configurations from a declarative JSON schema, and deploys and manages the full network lifecycle including infrastructure and Fabric Smart Client (FSC) nodes.
 
 ## Quick Start
 
@@ -19,9 +20,9 @@ npm run generate:verify
 
 ### Full Pipeline execution
 ```bash
-./fablo-fabricx.sh up     # Full pipeline: generates configs, deploys to fabric-x, starts network
-./fablo-fabricx.sh test   # Runs full token lifecycle E2E verification
-./fablo-fabricx.sh down   # Clean teardown (restores original configs, cleans FSC state)
+./fablo-x.sh up     # Full pipeline: generates configs, deploys to fabric-x, starts network
+./fablo-x.sh test   # Runs full token lifecycle E2E verification
+./fablo-x.sh down   # Clean teardown (restores original configs, cleans FSC state)
 ```
 
 ## Pipeline Flow
@@ -33,13 +34,13 @@ npm run generate (EJS templates)
         ↓
 generated-output/ (core.yaml, routing-config, docker-compose)
         ↓
-fablo-fabricx.sh up (copies configs → fabric-x deployment)
+fablo-x.sh up (copies configs → fabric-x deployment)
         ↓
 Fabric-X network running with GENERATED configs
         ↓
-fablo-fabricx.sh test (token lifecycle verification)
+fablo-x.sh test (token lifecycle verification)
         ↓
-fablo-fabricx.sh down (restore originals, clean state)
+fablo-x.sh down (restore originals, clean state)
 ```
 
 ## Available Commands
@@ -49,11 +50,11 @@ fablo-fabricx.sh down (restore originals, clean state)
 | `npm run generate` | Generate configs from schema |
 | `npm run verify` | Verify generated matches reference |
 | `npm run generate:verify` | Generate + verify |
-| `./fablo-fabricx.sh generate` | Standalone generation |
-| `./fablo-fabricx.sh up` | Full pipeline: generate → deploy → start |
-| `./fablo-fabricx.sh down` | Teardown + restore + clean |
-| `./fablo-fabricx.sh test` | Token lifecycle E2E test |
-| `./fablo-fabricx.sh status` | Container and health status |
+| `./fablo-x.sh generate` | Standalone generation |
+| `./fablo-x.sh up` | Full pipeline: generate → deploy → start |
+| `./fablo-x.sh down` | Teardown + restore + clean |
+| `./fablo-x.sh test` | Token lifecycle E2E test |
+| `./fablo-x.sh status` | Container and health status |
 
 ## Architecture
 
@@ -75,7 +76,7 @@ During development and testing, several key Fabric-X behavioral details were dia
 ## Project Structure
 
 ```text
-├── fablo-fabricx.sh          # Network lifecycle manager
+├── fablo-x.sh          # Network lifecycle manager
 ├── src/
 │   ├── generate.ts           # Dynamic config generator
 │   └── verify.ts             # Output component matching

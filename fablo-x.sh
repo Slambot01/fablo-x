@@ -2,9 +2,9 @@
 set -e
 
 # ============================================================
-# Fablo-FabricX Lifecycle Manager
+# Fablo-X Lifecycle Manager
 # Orchestrates the full Fabric-X token network bootstrap using
-# generated configurations from the Fablo-FabricX generator.
+# generated configurations from the Fablo-X generator.
 #
 # Commands:
 #   setup    — one-time: install prereqs, crypto, images, keys
@@ -195,7 +195,7 @@ COMMAND="${1:-help}"
 # ============================================================
 
 cmd_setup() {
-    print_banner "Fablo-FabricX: One-Time Setup"
+    print_banner "Fablo-X: One-Time Setup"
 
     # Step 1: Validate environment
     print_step "1/5" "Validating environment..."
@@ -271,7 +271,7 @@ cmd_setup() {
 
     echo ""
     echo -e "${GREEN}${BOLD}Setup complete.${NC}"
-    echo -e "Run ${CYAN}./fablo-fabricx.sh up${NC} to start the network."
+    echo -e "Run ${CYAN}./fablo-x.sh up${NC} to start the network."
 }
 
 # ============================================================
@@ -279,7 +279,7 @@ cmd_setup() {
 # ============================================================
 
 cmd_up() {
-    print_banner "Fablo-FabricX: Starting Network"
+    print_banner "Fablo-X: Starting Network"
 
     # Step 1: Generate configs
     print_step "1/13" "Generating Fabric-X configurations..."
@@ -298,7 +298,7 @@ cmd_up() {
         print_fail "FSC images not built"
         setup_ok=0
     fi
-    [ $setup_ok -eq 0 ] && die "Setup incomplete. Run './fablo-fabricx.sh setup' first."
+    [ $setup_ok -eq 0 ] && die "Setup incomplete. Run './fablo-x.sh setup' first."
     print_ok "Setup validated"
 
     # Step 3: Stop any previous containers
@@ -401,7 +401,7 @@ cmd_up() {
 # ============================================================
 
 cmd_down() {
-    print_banner "Fablo-FabricX: Tearing Down Network"
+    print_banner "Fablo-X: Tearing Down Network"
 
     # Step 1: Stop containers (try both generated and original compose files)
     print_step "1/5" "Stopping containers..."
@@ -442,7 +442,7 @@ cmd_test() {
 
     # Pre-check: is the network running?
     if ! curl -sf http://localhost:9100/healthz > /dev/null 2>&1; then
-        die "Network not running. Run './fablo-fabricx.sh up' first."
+        die "Network not running. Run './fablo-x.sh up' first."
     fi
 
     # 1. Health check all 5 FSC nodes
@@ -576,7 +576,7 @@ cmd_test() {
 # ============================================================
 
 cmd_status() {
-    print_banner "Fablo-FabricX: Network Status"
+    print_banner "Fablo-X: Network Status"
 
     echo -e "${BOLD}--- Containers ---${NC}"
     docker ps --filter network=fabric_test \
@@ -604,7 +604,7 @@ cmd_status() {
 # ============================================================
 
 cmd_generate() {
-    print_banner "Fablo-FabricX: Generate Configs"
+    print_banner "Fablo-X: Generate Configs"
 
     cd "$POC_DIR"
     if ! npm run generate --silent; then
@@ -618,7 +618,7 @@ cmd_generate() {
     done
     echo ""
     print_ok "Configuration generated (not deployed)"
-    echo -e "  Run ${CYAN}./fablo-fabricx.sh up${NC} to deploy and start the network."
+    echo -e "  Run ${CYAN}./fablo-x.sh up${NC} to deploy and start the network."
 }
 
 # ============================================================
@@ -633,9 +633,9 @@ case "$COMMAND" in
     status)   cmd_status ;;
     generate) cmd_generate ;;
     *)
-        echo -e "${BOLD}Fablo-FabricX Lifecycle Manager${NC}"
+        echo -e "${BOLD}Fablo-X Lifecycle Manager${NC}"
         echo ""
-        echo "Usage: ./fablo-fabricx.sh {setup|up|down|test|status|generate}"
+        echo "Usage: ./fablo-x.sh {setup|up|down|test|status|generate}"
         echo ""
         echo "  setup    — One-time: install prereqs, generate crypto, build images"
         echo "  up       — Generate configs, deploy, and start the network"

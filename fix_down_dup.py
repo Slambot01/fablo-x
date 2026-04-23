@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Clean up the down section to have exactly one data cleanup with correct indentation."""
 
-with open('fablo-fabricx.sh', 'r') as f:
+with open('fablo-x.sh', 'r') as f:
     content = f.read()
 
 # Fix the down section: remove the duplicate inserted after network rm
@@ -35,7 +35,7 @@ new_down = '''    docker network rm fabric_test 2>/dev/null || true
 
 content = content.replace(old_down, new_down)
 
-with open('fablo-fabricx.sh', 'w', newline='\n') as f:
+with open('fablo-x.sh', 'w', newline='\n') as f:
     f.write(content)
 
 print('Done - removed duplicate cleanup in down section')

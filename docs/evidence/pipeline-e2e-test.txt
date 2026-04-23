@@ -5,12 +5,12 @@ Test Scope: Full connected pipeline (generate -> deploy -> test)
 
 === PIPELINE FLOW ===
 1. npm run generate (EJS templates process fablo-config-fabricx.json)
-2. configs copied to fabric-x directory for deployment (via fablo-fabricx.sh up)
+2. configs copied to fabric-x directory for deployment (via fablo-x.sh up)
 3. network started with generated configs
-4. token lifecycle tested (via fablo-fabricx.sh test)
+4. token lifecycle tested (via fablo-x.sh test)
 
 === COMMANDS RUN AND OUTPUT ===
-* ./fablo-fabricx.sh up
+* ./fablo-x.sh up
   - Generator successfully built docker-compose.yml and 10 FSC config files
   - Configs deployed to Fabric-X conf/ directory (originals backed up as .bak)
   - Old FSC SQLite data cleaned (ensuring fresh ledger state)
@@ -20,7 +20,7 @@ Test Scope: Full connected pipeline (generate -> deploy -> test)
   - All health checks passed
   - Endorser initialized
 
-* ./fablo-fabricx.sh test results:
+* ./fablo-x.sh test results:
   - Health checks: 5/5 passed
   - Issue 100 EURX to alice: TX f3c96723...
   - Issue 50 EURX to carlos: TX c8c65d47...
@@ -31,7 +31,7 @@ Test Scope: Full connected pipeline (generate -> deploy -> test)
   - Carlos final: 80 EURX
   - All transactions: Confirmed
 
-* ./fablo-fabricx.sh down
+* ./fablo-x.sh down
   - Clean teardown (all containers stopped and removed)
   - .bak original configs restored
   - FSC SQLite data cleared

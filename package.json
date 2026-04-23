@@ -1,5 +1,5 @@
 {
-  "name": "fablo-fabricx-generator",
+  "name": "fablo-x-generator",
   "version": "1.0.0",
   "description": "Fablo Fabric-X Generator POC",
   "main": "dist/generate.js",
@@ -7,12 +7,12 @@
     "generate": "ts-node src/generate.ts",
     "verify": "ts-node src/verify.ts",
     "generate:verify": "npm run generate && npm run verify",
-    "network:setup": "./fablo-fabricx.sh setup",
-    "network:generate": "./fablo-fabricx.sh generate",
-    "network:up": "./fablo-fabricx.sh up",
-    "network:down": "./fablo-fabricx.sh down",
-    "network:test": "./fablo-fabricx.sh test",
-    "network:status": "./fablo-fabricx.sh status"
+    "network:setup": "./fablo-x.sh setup",
+    "network:generate": "./fablo-x.sh generate",
+    "network:up": "./fablo-x.sh up",
+    "network:down": "./fablo-x.sh down",
+    "network:test": "./fablo-x.sh test",
+    "network:status": "./fablo-x.sh status"
   },
   "dependencies": {
     "ejs": "^3.1.9"

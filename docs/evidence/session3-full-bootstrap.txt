@@ -17,10 +17,10 @@ Result: No containers running, clean state.
 
 PHASE 2: SETUP COMMAND
 -----------------------
-$ ./fablo-fabricx.sh setup
+$ ./fablo-x.sh setup
 
 ==========================================
-  Fablo-FabricX: One-Time Setup
+  Fablo-X: One-Time Setup
 ==========================================
 
 [1/5] Validating environment...
@@ -35,14 +35,14 @@ $ ./fablo-fabricx.sh setup
   ✓ FSC keys already exist (skipped)
 
 Setup complete.
-Run ./fablo-fabricx.sh up to start the network.
+Run ./fablo-x.sh up to start the network.
 
 PHASE 3: UP COMMAND
 --------------------
-$ ./fablo-fabricx.sh up
+$ ./fablo-x.sh up
 
 ==========================================
-  Fablo-FabricX: Starting Network
+  Fablo-X: Starting Network
 ==========================================
 
 [1/13] Generating Fabric-X configurations...
@@ -154,10 +154,10 @@ tokens-swagger-ui-1   Up 16 seconds
 
 PHASE 4: STATUS COMMAND
 ------------------------
-$ ./fablo-fabricx.sh status
+$ ./fablo-x.sh status
 
 ==========================================
-  Fablo-FabricX: Network Status
+  Fablo-X: Network Status
 ==========================================
 
 --- Containers ---
@@ -187,7 +187,7 @@ tokens-swagger-ui-1   Up 41 seconds             0.0.0.0:8080->8080/tcp
 
 PHASE 5: TOKEN LIFECYCLE TEST
 -------------------------------
-$ ./fablo-fabricx.sh test
+$ ./fablo-x.sh test
 
 ==========================================
   Fabric-X Token Lifecycle E2E Test
@@ -227,10 +227,10 @@ $ ./fablo-fabricx.sh test
 
 PHASE 6: DOWN COMMAND
 ----------------------
-$ ./fablo-fabricx.sh down
+$ ./fablo-x.sh down
 
 ==========================================
-  Fablo-FabricX: Tearing Down Network
+  Fablo-X: Tearing Down Network
 ==========================================
 
 [1/5] Stopping containers...
@@ -269,7 +269,7 @@ FIXES APPLIED DURING SESSION 3
 ============================================================
 
 1. FSC keys idempotent check path
-   File: fablo-fabricx.sh (lines 263, 296)
+   File: fablo-x.sh (lines 263, 296)
    Before: [ -d "$FABRIC_X_DIR/conf/issuer/fsc" ]
    After:  [ -d "$FABRIC_X_DIR/conf/issuer/keys" ]
    Reason: FSC keys are stored at conf/issuer/keys/, not
@@ -297,7 +297,7 @@ check from conf/issuer/fsc to conf/issuer/keys.
 The full pipeline works:
   fablo-config-fabricx.json → npm run generate →
   docker-compose.yml + core.yaml + routing-config.yaml →
-  fablo-fabricx.sh up → RUNNING FABRIC-X NETWORK →
-  fablo-fabricx.sh test → ALL TESTS PASSED ✅
+  fablo-x.sh up → RUNNING FABRIC-X NETWORK →
+  fablo-x.sh test → ALL TESTS PASSED ✅
 
 ============================================================

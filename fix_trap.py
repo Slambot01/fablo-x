@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Fix trap in fablo-fabricx.sh: disable trap on successful up/down completion."""
+"""Fix trap in fablo-x.sh: disable trap on successful up/down completion."""
 
-with open('fablo-fabricx.sh', 'r') as f:
+with open('fablo-x.sh', 'r') as f:
     lines = f.readlines()
 
 new_lines = []
@@ -32,7 +32,7 @@ for i, line in enumerate(new_lines):
         final_lines.insert(-1, '    trap - INT TERM\n')
         final_lines.insert(-1, '\n')
 
-with open('fablo-fabricx.sh', 'w', newline='\n') as f:
+with open('fablo-x.sh', 'w', newline='\n') as f:
     f.writelines(final_lines)
 
 print('Done - trap fixed to only fire on interruption, not normal exit')

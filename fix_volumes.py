@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fix docker compose down commands to include -v flag for volume cleanup."""
 
-with open('fablo-fabricx.sh', 'r') as f:
+with open('fablo-x.sh', 'r') as f:
     content = f.read()
 
 # Fix all 4 "docker compose ... down" commands to add -v flag
@@ -15,7 +15,7 @@ content = content.replace(
     'docker compose -f compose-xdev.yml down -v 2>/dev/null || true'
 )
 
-with open('fablo-fabricx.sh', 'w', newline='\n') as f:
+with open('fablo-x.sh', 'w', newline='\n') as f:
     f.write(content)
 
 print('Done - added -v flag to all docker compose down commands')

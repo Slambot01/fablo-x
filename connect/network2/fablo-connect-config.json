@@ -1,0 +1,42 @@
+{
+  "$schema": "https://github.com/hyperledger-labs/fablo/releases/download/2.6.0/schema.json",
+  "global": {
+    "fabricVersion": "2.5.9",
+    "tls": true
+  },
+  "network": {
+    "dockerNetworkName": "fablo_network_202605051022_basic"
+  },
+  "orgs": [
+    {
+      "organization": {
+        "name": "Org1",
+        "domain": "org1.example.com",
+        "mspName": "Org1MSP"
+      },
+      "ca": {
+        "url": "https://localhost:7020",
+        "tlsCACertPath": "/home/ritesh/lfdt-project/Fablo-fabricx/connect/network1/fablo-target/fabric-config/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem",
+        "adminMspPath": "/home/ritesh/lfdt-project/Fablo-fabricx/connect/network1/fablo-target/fabric-config/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+      },
+      "orderer": {
+        "url": "localhost:7030",
+        "tlsCACertPath": "/home/ritesh/lfdt-project/Fablo-fabricx/connect/network1/fablo-target/fabric-config/crypto-config/peerOrganizations/org1.example.com/peers/orderer0.group1.org1.example.com/tls/ca.crt"
+      },
+      "peer": {
+        "instances": 1
+      }
+    }
+  ],
+  "channels": [
+    {
+      "name": "my-channel1",
+      "orgs": [
+        {
+          "name": "Org1",
+          "peers": ["peer1"]
+        }
+      ]
+    }
+  ]
+}

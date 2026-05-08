@@ -1,6 +1,6 @@
 # Source: fabric-x/samples/tokens/conf/<%= node.name %>/routing-config.yaml
 routes:
-<% allFscNodes.forEach(function(fscNode) { -%>
+<% allFscNodes.filter(function(n) { return !n.excludeFromResolvers; }).forEach(function(fscNode) { -%>
   <%= fscNode.name %>:
     - <%= fscNode.name %>.example.com:<%= fscNode.ports.p2p %>
 <% }); -%>
